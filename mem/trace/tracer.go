@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/sarchlab/akita/v3/mem/mem"
+	"github.com/sarchlab/akita/v3/mem/vm"
 	"github.com/sarchlab/akita/v3/sim"
 	"github.com/sarchlab/akita/v3/tracing"
 )
@@ -19,14 +20,19 @@ type tracer struct {
 // StartTask marks the start of a memory transaction
 func (t *tracer) StartTask(task tracing.Task) {
 	task.StartTime = t.timeTeller.CurrentTime()
-
-	req, ok := task.Detail.(mem.AccessReq)
-	if !ok {
-		return
+	// TODO Case system to also include Virtual mem petitions
+	memReq, isMemReq := task.Detail.(mem.AccessReq)
+	TransReq, isTransReq := task.Detail.(*vm.TranslationReq)
+	if isMemReq {
+		t.logger.Printf("start, %.12f, %s, %s, %s, 0x%x, %d\n",
+			task.StartTime, task.Where, task.ID, task.What,
+			memReq.GetAddress(), memReq.GetByteSize())
+	} else if isTransReq {
+		t.logger.Printf("start, %.12f, %s, %s, %s, 0x%x, %d\n",
+			task.StartTime, task.Where, task.ID, task.What,
+			TransReq.VAddr, TransReq.TrafficBytes)
 	}
-	t.logger.Printf("start, %.12f, %s, %s, %s, 0x%x, %d\n",
-		task.StartTime, task.Where, task.ID, task.What,
-		req.GetAddress(), req.GetByteSize())
+
 }
 
 // StepTask marks the memory transaction has completed a milestone

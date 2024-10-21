@@ -3,7 +3,6 @@ package tlb
 import (
 	"log"
 	"reflect"
-	"strconv"
 
 	"github.com/sarchlab/akita/v3/mem/vm"
 	"github.com/sarchlab/akita/v3/mem/vm/tlb/internal"
@@ -151,7 +150,7 @@ func (tlb *TLB) handleTranslationMiss(
 	if fetched {
 		tlb.topPort.Retrieve(now)
 		tracing.TraceReqReceive(req, tlb)
-		tracing.AddTaskStep(tracing.MsgIDAtReceiver(req, tlb), tlb, "miss"+", 0x"+strconv.FormatUint(req.VAddr, 10))
+		tracing.AddTaskStep(tracing.MsgIDAtReceiver(req, tlb), tlb, "miss")
 		return true
 	}
 
